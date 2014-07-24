@@ -1,61 +1,67 @@
 // server.js
 
-// base setup
-// ====================
+// BASE SETUP
+// =============================================================================
 
-var express = require('express');
-var app = express();
+// call the packages we need
+var express    = require('express'); 		// call express
+var app        = express(); 				// define our app using express
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://node:node@novus.modulusmongo.net:27017/Iganiq8o');
 var Bear = require('./app/models/bear');
-
-// configure app for bodyparser
-// will use for POST
+// configure app to use bodyParser()
+// this will let us get the data from a POST
 app.use(bodyParser());
 
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8080; 		// set our port
 
-// Routes for API
-// ========================
-var router = express.Router();
+
+var mongoose   = require('mongoose');
+mongoose.connect('mongodb://rally:rally@ds055689.mongolab.com:55689/rally'); // connect to our database
+
+
+
+// ROUTES FOR OUR API
+// =============================================================================
+var router = express.Router(); 				// get an instance of the express Router
 
 // middleware to use for all requests
-router.use(function(req, res, next){
-	//logging
-	console.log('Rallying is happening');
+router.use(function(req, res, next) {
+	// do logging
+	console.log('Something is happening.');
+	next(); // make sure we go to the next routes and don't stop here
 });
 
-// test router to make sure everything is working correctly
-router.get('/', function(req, res){
-	res.json({ message: 'hooray! welcome to our api!' });
+// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
+router.get('/', function(req, res) {
+	res.json({ message: 'hooray! welcome to our api!' });	
 });
 
-// more routes will go here
+// more routes for our API will happen here
 
-// routes that end in beasts
 router.route('/bears')
 
-	// create a beast
-	.post(function(req, res){
-		var bear = new Bear();
-		bear.name = req.body.name;
+	// create a bear (accessed at POST http://localhost:8080/api/bears)
+	.post(function(req, res) {
+		
+		var bear = new Bear(); 		// create a new instance of the Bear model
+		bear.name = req.body.name;  // set the bears name (comes from the request)
 
-		bear.save(function(err){
-			if(err)
+		// save the bear and check for errors
+		bear.save(function(err) {
+			if (err)
 				res.send(err);
-			res.json({ message:'Beast Created!' });
+
+			res.json({ message: 'Bear created!' });
 		});
+		
 	});
 
 
-// Register our routes
-// all routes prefaced with /api
+// REGISTER OUR ROUTES -------------------------------
+// all of our routes will be prefixed with /api
 app.use('/api', router);
 
-// Start the server
+// START THE SERVER
+// =============================================================================
 app.listen(port);
-console.log('Rallying on port ' + port);
-
-
-
+console.log('Rallying on ' + port);
