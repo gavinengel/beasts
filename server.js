@@ -6,12 +6,24 @@
 // call the packages we need
 var express    = require('express'); 		// call express
 var app        = express(); 				// define our app using express
+app.use(function(req, res, next) {
+    if (req.headers.origin) {
+        res.header('Access-Control-Allow-Origin', '*')
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,Authorization')
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE')
+        if (req.method === 'OPTIONS') return res.send(200)
+    }
+    next()
+})
+
+app.set('views', __dirname + '/views')
+app.set('view engine', 'jade')
 var bodyParser = require('body-parser');
 var Bear = require('./app/models/bear');
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser());
-
+app.use(express.static(__dirname + '/public'));
 var port = process.env.PORT || 8080; 		// set our port
 
 
@@ -50,8 +62,13 @@ router.route('/bears')
 		bear.save(function(err) {
 			if (err)
 				res.send(err);
-
-			res.json({ message: 'Bear created!' });
+			//res.setHeader('Content-Type','application/json');
+                	//res.setHeader('Access-Control-Allow-Origin','*');
+                	//res.setHeader('Access-Control-Allow-Methods','GET,PUT,POST,DELETE');
+                	//res.writeHead(200);
+			//res.json({ message: 'Bear created!' });
+			res.json({message: "Kevin says:" + req.body.name});
+		
 		});
 	})
 		
